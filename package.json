@@ -1,0 +1,17 @@
+{
+  "name": "teste_electron",
+  "version": "1.0.0",
+  "description": "teste",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "DA",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^13.1.4"
+  },
+  "dependencies": {
+    "appium-adb": "^8.13.0"
+  }
+}

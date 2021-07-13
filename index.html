@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="./style.css" >
+    <title>ADB (+Others) Test Tool</title>
+  </head>
+  <body class="body" onload="loadPage()">
+    <div id="topPanel" >
+        <div class="inputDiv"> 
+            <input type="text" id="host" name="host" value="192.168.1.199"/>  
+            <button id="btnConnect" onclick="runProcess()">Executar</button>
+            <button id="btnClose" onclick="disconnectADB()">Desconectar</button>
+        </div>
+    </div>
+    <div>
+      <div>
+        <textarea id="txtConsole" class="console">...</textarea>
+      </div>
+      <button class="tablink" onclick="openPage('dvInfo', this, 'red')" id="defaultTabOpen">Info</button>
+      <button class="tablink" onclick="openPage('dvFeatures', this, 'green')">Features</button>
+      <button class="tablink" onclick="openPage('dvApps', this, 'blue')">Apps</button>
+      <button class="tablink" onclick="openPage('dvExternal', this, 'orange')">External</button>
+      <div id="dvInfo" class="tabcontent">
+        <table class="fl-table">
+          <tbody class="tbody">
+            <tr>
+              <td><span>Dispositivo: </span></td><td><span id="spnDevice"></span></td>
+            </tr>
+            <tr>
+              <td><span>Modelo: </span></td><td><span id="spnModel"></span></td> 
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="dvFeatures" class="tabcontent">
+        <span>Features Enabled on Devices: </span><span id="spnFeatCount"></span>
+        <br><br>
+        <table class="fl-table" id="tbFeatures">
+          <tbody class="tbody">
+          </tbody>
+        </table>
+      </div>
+      <div id="dvApps" class="tabcontent">
+        <button class="btnFlat" onclick="pullUserApps()">Puxar e Analisar User Apps</button>
+        <br><br>
+        <table> 
+          <tr>
+            <td class="alTop">
+              <span>System Apps: </span><span id="spnSysApps"></span>
+            </td>
+            <td class="alTop">
+              <span>User Apps: </span><span id="spnUsrApps"></span>
+            </td>
+          </tr>
+          <tr>
+            <td class="alTop">
+              <table class="fl-table" id="tbSysApps">
+                <tbody>
+                </tbody>
+              </table>
+            </td>
+            <td class="alTop">
+              <table class="fl-table" id="tbUsrApps">
+                <tbody>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </table>  
+      </div>
+      <div id="dvExternal" class="tabcontent">
+        <table class="table">
+          <tbody class="tbody">
+            <tr>
+              <td><span>External: </span>: </span></td><td><span id="spnExternal"></span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </body>
+  <script src="./helper.js"></script>
+</html>
