@@ -3,6 +3,7 @@ const { disconnect } = require('process');
 const shell = require('electron').shell;
 const fs = require('fs');
 const crypto = require('crypto');
+const https = require('https')
 
 const txtHost = document.querySelector('#host');
 const txtConsole = document.querySelector('#txtConsole');
@@ -77,13 +78,14 @@ function runProcess () {
         else {return};
         
         if (getDeviceFeatures(execSync)) {
-            let i;
+            let i, tx;
             let tb = document.getElementById("tbFeatures");
             let rw, cl = null;
             for (i = 0; i < deviceFeatures.length; i++) {
                 rw = tb.insertRow(i);
                 cl = rw.insertCell(0);
-                cl.innerHTML = deviceFeatures[i].replace("feature:","");
+                tx = deviceFeatures[i].replace("feature:", "").trim();
+                cl.innerHTML = "<a onclick=featureMoreInfo('" + tx + "')>" + tx + "</a>";
             }
             spnFeatures.innerHTML = deviceFeatures.length;
         }
@@ -131,10 +133,17 @@ function appsMoreInfo(app) {
     }
 }
 
+function featureMoreInfo (feat) {
+    try {
+        shell.openExternal('https://www.google.com/search?q=' + feat);
+    }
+    catch (e){
+        console.log('Catch : \n\n ' + e);
+    } 
+}
+
 function appsExternalInfo (step, index) {
     try {
-        //switch (step) {
-        //    case 1:
                 consoleText('Calculando o hash do arquivo: ' + deviceUsrApps[index].name);
                 myUsrAppsIndex = index;
                 let manifest = appCopyPath + '/' + deviceUsrApps[index].name + '/' + deviceUsrApps[index].name + '_android_manifest.xml';
@@ -162,25 +171,14 @@ function appsExternalInfo (step, index) {
                 console.log(apkAnlyzerPath + '/apkanalyzer -h manifest print ' + appCopyPath + '/' + deviceUsrApps[index].name + '.apk');
                 let output = shellExec(apkAnlyzerPath + '/apkanalyzer -h manifest print ' + appCopyPath + '/' + deviceUsrApps[index].name + '.apk', { encoding: 'utf-8' });
                 fs.writeFileSync(manifest, output, { encoding: 'utf-8'});
-                //console.log(output);
+
                 a = output.indexOf("android:versionCode=") + 20;
                 b = output.indexOf("\n", a);
                 versionCode = output.substring(a, b).replace(new RegExp('"', "g"),'');
-                //console.log(a);
-                //console.log(b);
-                //console.log(versionCode);
 
                 a = output.indexOf("android:versionName=") + 20;
                 b = output.indexOf("\n", a);
                 versionName = output.substring(a, b).replace(new RegExp('"', "g"),'');
-                //console.log(a);
-                //console.log(b);
-                //console.log(versionName);
-
-        //        appsExternalInfo(2, index);
-
-        //        break;
-        //    case 2:
                 
                 myFileJson = [];
 
@@ -194,27 +192,50 @@ function appsExternalInfo (step, index) {
                     myFileJson = JSON.parse(data);
                     //console.log(myFileJson);
                 }
-                
-                if (findAppJson(deviceUsrApps[index].name, versionName) < 0) {
+
+                let idx = findAppJson(deviceUsrApps[index].name, versionName);
+                //console.log('idx: ' + idx);
+                if (idx < 0) {
                     myFileJson.push({
                         name: deviceUsrApps[index].name, 
                         version_code: versionCode,
                         version_name: versionName,
                         path: deviceUsrApps[index].path, 
                         hash: "hash", 
-                        vtanalysisid: 0
+                        vt: {
+                            fileid: "",
+                            local: "",
+                            url: "",
+                            analysisid: ""
+                        }
                     });
+
+                    fs.writeFileSync(jsonAnalyzeFile, JSON.stringify(myFileJson), 'utf8');
+
+                    idx = findAppJson(deviceUsrApps[index].name, versionName);
+                }
+                
+                console.log(myFileJson);
+                if (myFileJson[idx].vt.fileid === '') {
+                    
+                    consoleText('Enviando o arquivo para VirusTotal: ');
+
+                    sendFile2VirusTotal2(index, idx, appCopyPath + '/' + deviceUsrApps[index].name + '.apk');
+                    
+                    return;
+                } else {
+                    consoleText('Arquivo ja enviado previamente, prosseguindo com a analise: ');
                 }
 
-                console.log(myFileJson);
-
-                fs.writeFileSync(jsonAnalyzeFile, JSON.stringify(myFileJson), 'utf8');
-
-                sendFile2VirusTotal(index, appCopyPath + '/' + deviceUsrApps[index].name + '.apk');
-
-        //        break;
-        //}
-
+                if (myFileJson[idx].vt.url === '') {
+                    runVirusTotalAnalysis2(idx, appCopyPath + '/' + deviceUsrApps[index].name);
+                    return;
+                }
+                else {
+                    let url = "https://www.virustotal.com/gui/file/" + myFileJson[idx].vt.analysisid + "/detection";
+                    openURL(url);
+                    return;
+                }
 
     }
     catch (e){
@@ -237,23 +258,92 @@ function findAppJson(app,name) {
     }
 }
 
-function sendFile2VirusTotal(i, file) {
+function sendFile2VirusTotal2(i, idx, file) {
     try {
-        let stats = fs.statSync(file);
-        let fileSize = stats.size;
+        let d = [];
+        const nvt = require('node-virustotal');
+        const defaultTimedInstance = nvt.makeAPI();
+        defaultTimedInstance.setKey(vtak);
+        console.log('serializing file');
+        const aMaliciousFile = require('fs').readFileSync(file);
+        console.log('making post');
+        const theSameObject = defaultTimedInstance.uploadFile(aMaliciousFile, deviceUsrApps[i].name, 'application/x-msdownload', function(err, res){
+            if (err) {
+                console.log('Well, crap.');
+                console.log(err);
+                return;
+            }
 
-        // for VirusTotal API files up to 32MB must be sent using one endpoint, 
-        //      bigger than that must be sent using another endpoint. 
-        console.log(file + ' --> ' + fileSize);
-        if (fileSize <= 31500000){
+            console.log(res);
+            d = JSON.parse(res);
+            myFileJson[idx].vt.fileid = d.data.id;
+        
+            consoleText('Arquivo enviado, prosseguindo com a analise: ');
+            
+            runVirusTotalAnalysis2(idx, appCopyPath + '/' + deviceUsrApps[i].name);
 
-        }
-        else {
-
-        }
+            return;
+        });
 
 
+    } catch (e) {
+        console.error('Catch : \n\n ' + e);
+    }
+}
 
+function runVirusTotalAnalysis2(idx, path) {
+    try {
+        let d = [];
+        let url = "";
+        const nvt = require('node-virustotal');
+        const defaultTimedInstance = nvt.makeAPI();
+        defaultTimedInstance.setKey(vtak);
+        console.log('making post');
+        console.log(myFileJson[idx]);
+        console.log(myFileJson[idx].vt.fileid);
+        const theSameObject = defaultTimedInstance.getAnalysisInfo(myFileJson[idx].vt.fileid, function(err, res){
+            if (err) {
+                console.log('Well, crap.');
+                console.log(err);
+                return;
+            }
+            
+            //console.log(res);
+            d = JSON.parse(res);
+
+            fs.writeFileSync(path + '/vtAnalysis.json', JSON.stringify(d));
+            console.log('Json gravado');
+            
+            //console.log(d);
+            console.log(d.meta);
+            //console.log(d.data);
+            //console.log(d.data.attributes);
+            //console.log(d.data.links.self);
+
+            myFileJson[idx].vt.local = path + '/vtAnalysis.json';
+            myFileJson[idx].vt.url = d.data.links.self;
+            myFileJson[idx].vt.analysisid = d.meta.file_info.sha256;
+
+            console.log(myFileJson);
+
+            fs.writeFileSync(jsonAnalyzeFile, JSON.stringify(myFileJson), 'utf8');
+
+            consoleText('Analise finalizada, abrindo site');
+
+            url = "https://www.virustotal.com/gui/file/" + d.meta.file_info.sha256 + "/detection";
+            openURL(url);
+
+            return;
+        });
+    } catch (e) {
+        console.error('Catch : \n\n ' + e);
+    }
+}
+
+function openURL (url) {
+    try {
+        console.log("url: " + url);
+        shell.openExternal(url);
     } catch (e) {
         console.error('Catch : \n\n ' + e);
     }

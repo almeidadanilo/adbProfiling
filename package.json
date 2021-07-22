@@ -12,6 +12,7 @@
     "electron": "^13.1.4"
   },
   "dependencies": {
-    "appium-adb": "^8.13.0"
+    "appium-adb": "^8.13.0",
+    "node-virustotal": "^3.32.0"
   }
 }
