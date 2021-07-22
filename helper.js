@@ -261,20 +261,34 @@ function findAppJson(app,name) {
 function sendFile2VirusTotal2(i, idx, file) {
     try {
         let d = [];
-        const nvt = require('node-virustotal');
+        const nvt = require('node-virustotal'); 
         const defaultTimedInstance = nvt.makeAPI();
-        defaultTimedInstance.setKey(vtak);
         console.log('serializing file');
+        //console.log(file);
+        //let fsize = fs.statSync(file).size;
+        //if (fsize < 32500000){
+        //    console.log('arquivo pequeno');
+        //    nvt = 
+        //    defaultTimedInstance = ;
+        //} else {
+        //    console.log('arquivo grande');
+        //    nvt = require('node-virustotal');
+        //    defaultTimedInstance = nvt.makeAPI();
+        //}
+        defaultTimedInstance.setKey(vtak);
         const aMaliciousFile = require('fs').readFileSync(file);
-        console.log('making post');
-        const theSameObject = defaultTimedInstance.uploadFile(aMaliciousFile, deviceUsrApps[i].name, 'application/x-msdownload', function(err, res){
+        console.log('making post: send file');
+        console.log(aMaliciousFile.length);
+        const theSameObject = defaultTimedInstance.uploadFile(aMaliciousFile, deviceUsrApps[i].name, 'application/vnd.android.package-archive', function(err, res) {
             if (err) {
-                console.log('Well, crap.');
-                console.log(err);
+                consoleText("Erro enviando o arquivo para VirusTotal");
+                console.log('Erro enviando o arquivo para VirusTotal');
+                //console.log(err);
+                //console.log(res);
                 return;
             }
 
-            console.log(res);
+            //console.log(res);
             d = JSON.parse(res);
             myFileJson[idx].vt.fileid = d.data.id;
         
@@ -298,11 +312,12 @@ function runVirusTotalAnalysis2(idx, path) {
         const nvt = require('node-virustotal');
         const defaultTimedInstance = nvt.makeAPI();
         defaultTimedInstance.setKey(vtak);
-        console.log('making post');
-        console.log(myFileJson[idx]);
-        console.log(myFileJson[idx].vt.fileid);
+        console.log('making post: VirusTotal Analize');
+        //console.log(myFileJson[idx]);
+        //console.log(myFileJson[idx].vt.fileid);
         const theSameObject = defaultTimedInstance.getAnalysisInfo(myFileJson[idx].vt.fileid, function(err, res){
             if (err) {
+                consoleText("Erro solicitando analise do VirusTotal");
                 console.log('Well, crap.');
                 console.log(err);
                 return;
