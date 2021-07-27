@@ -15,7 +15,7 @@ body {
 
 .console{
     width: 100%;
-    height: 250px;
+    height: 180px;
     font-size: smaller;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
@@ -41,6 +41,15 @@ body {
     display: none;
     padding: 100px 20px;
     height: 100%;
+}
+
+.file {
+    color: white;
+    background-color: #555;
+    border: 2px;
+    border-color: antiquewhite;
+    outline: none;
+    width: 180px;
 }
 
 .btnFlat {
@@ -112,3 +121,6 @@ a {
     cursor: pointer;
   }
   
+  input[type='file'] {
+    display: none
+  }

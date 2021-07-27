@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="./style.css" >
+    <title>ADB Tool - Settings</title>
+  </head>
+  <script src="./helper.js"></script>
+  <body class="body" onload="loadSettingsPage()">
+    <div>
+        <button class="tablink" onclick="openPage('dvAndroidSettings', this, 'red')" id="defaultTabOpen">Android Settings</button>
+        <button class="tablink" onclick="openPage('dvVirusTotalSettings', this, 'red')">VirusTotal Settings</button>
+        <button class="tablink" onclick="closeSettings()">Save & Return</button>
+    </div>
+    <div id="dvAndroidSettings" class="tabcontent">
+        <table>
+            <tr>
+                <td><label>ADB Folder</label></td><td></td>
+            </tr>
+            <tr>
+                <td><span id="spnADB" class="file"></span></td><td><button id="btn1" onclick="openFileDlg('spnADB')">...</button></td>
+            </tr>
+            <tr>
+                <td><label>APKAnalyzer Folder</label></td><td></td>
+            </tr>
+            <tr>
+                <td><span id="spnApkAnalizor" class="file"></span></td><td><button id="btn2" onclick="openFileDlg('spnApkAnalizor')">...</button></td>
+            </tr>
+            <tr>
+                <td><label>APK Copy Folder</label></td><td></td>
+            </tr>
+            <tr>
+                <td><span id="spnApkFolder" class="file"></span></td><td><button id="btn3" onclick="openFileDlg('spnApkFolder')">...</button></td>
+            </tr>
+            <tr>
+                <td><label>APK Analysis Folder</label></td><td></td>
+            </tr>
+            <tr>
+                <td><span id="spnApkAnalysisFolder" class="file"></span></td><td><button id="btn4" onclick="openFileDlg('spnApkAnalysisFolder')">...</button></td>
+            </tr>
+            <tr>
+                <td><label>Analysis JSON db</label></td><td></td>
+            </tr>
+            <tr>
+                <td><span id="spnAnalysisJSON" class="file"></span></td><td><button id="btn5" onclick="openFileDlg('spnAnalysisJSON')">...</button></td>
+            </tr>
+        </table>
+    </div>
+    <div id="dvVirusTotalSettings" class="tabcontent">
+        <table >
+            <tr>
+                <td><label>API Key</label></td>
+            </tr>
+            <tr>
+                <td><input type="text" id="spnVTak" class="file"></td>
+            </tr>
+            <tr>
+                <td><label>Main URL</label></td>
+            </tr>
+            <tr>
+                <td><input type="text" id="spnVTMainURL" class="file"></td>
+            </tr>
+            <tr>
+                <td><label>Direct Access Analysis URL</label></td>
+            </tr>
+            <tr>
+                <td><input type="text" id="spnVTDirAccURL" class="file"></td>
+            </tr>
+        </table>
+    </div>
+    <br>
+  </body>
+</html>

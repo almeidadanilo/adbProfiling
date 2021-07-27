@@ -26,6 +26,7 @@ let deviceModel, deviceProduct = "";
 let deviceFeatures, deviceSysApps, deviceUsrApps = [];
 let myUsrAppsIndex = 0;
 let myFileJson = null;
+let myConfigJson = null;
 
 function consoleText (text) {
     let time = new Date();
@@ -265,16 +266,6 @@ function sendFile2VirusTotal2(i, idx, file) {
         const defaultTimedInstance = nvt.makeAPI();
         console.log('serializing file');
         //console.log(file);
-        //let fsize = fs.statSync(file).size;
-        //if (fsize < 32500000){
-        //    console.log('arquivo pequeno');
-        //    nvt = 
-        //    defaultTimedInstance = ;
-        //} else {
-        //    console.log('arquivo grande');
-        //    nvt = require('node-virustotal');
-        //    defaultTimedInstance = nvt.makeAPI();
-        //}
         defaultTimedInstance.setKey(vtak);
         const aMaliciousFile = require('fs').readFileSync(file);
         console.log('making post: send file');
@@ -481,7 +472,25 @@ function getDeviceApps (shellExec){
 }
 
 function loadPage() {
-    document.getElementById("defaultTabOpen").click();
+    try {
+        document.getElementById("defaultTabOpen").click();
+        
+        document.addEventListener("DOMContentLoaded", loadSettingsFromJSON());        
+
+    } catch(e){
+        console.error('Catch : \n\n ' + e);
+    } 
+}
+
+function loadSettingsPage() {
+    try {
+        document.getElementById("defaultTabOpen").click();
+        
+        document.addEventListener("DOMContentLoaded", loadSettingsFromJSON());        
+
+    } catch(e){
+        console.error('Catch : \n\n ' + e);
+    } 
 }
 
 function openPage (pageName, elmnt ,color) {
@@ -501,6 +510,39 @@ function openPage (pageName, elmnt ,color) {
         console.error('Catch : \n\n ' + e);       
     }
   }
+
+function openFileDlg(targetElement) {
+    try {
+        let spn = document.querySelector('#' + targetElement);
+        let txt = "";
+        let remote = require("electron").remote;
+        let dialog = remote.dialog;
+        let result;
+
+        txt = "openFileDlg(): " + targetElement;
+        
+        console.log(txt);
+
+        result = dialog.showOpenDialogSync(remote.getCurrentWindow(), {
+            title: "Select the folder where ADB binary is located",
+            properties: [ targetElement === "spnAnalysisJSON" ? "openFile" : "openDirectory"]
+        })
+        if (typeof result === "object") {
+            console.log("Selected folder: ");
+            console.log(result);
+
+            spn.innerHTML = result[0].trim();
+
+        }
+        else {
+            process.stdout.write("ops");
+        }
+
+    } catch (e) {
+        process.stdout.write(e);
+        console.error('Catch : \n\n ' + e);       
+    }
+}
 
 function pullUserApps() {
     try {
@@ -547,4 +589,83 @@ function getHash (content) {
     } catch (e) {
         console.error('Catch : \n\n ' + e);
     }				
+}
+
+function closeSettings () {
+    try {
+        let spnADB = document.querySelector('#spnADB');
+        let spnApkAnalyzor = document.querySelector('#spnApkAnalizor');
+        let spnApkFolder = document.querySelector('#spnApkFolder');
+        let spnApkAnalysisFolder = document.querySelector('#spnApkAnalysisFolder');
+        let spnAnalysisJSON = document.querySelector('#spnAnalysisJSON');
+        let spnVTak = document.querySelector('#spnVTak');
+        let spnVTMainURL = document.querySelector('#spnVTMainURL');
+        let spnVTDirAccURL = document.querySelector('#spnVTDirAccURL');
+        let content;
+
+        content = {
+            "android": [{
+                "adbPath": spnADB.innerHTML,
+                "apkAnalyzorPath": spnApkAnalyzor.innerHTML,
+                "apkFolder": spnApkFolder.innerHTML,
+                "apkAnalysisPath": spnApkAnalysisFolder.innerHTML,
+                "jsonAnalyzeFile": spnAnalysisJSON.innerHTML
+            }],
+            "vt":[{
+                "ak": spnVTak.value,
+                "mainURL": spnVTMainURL.value,
+                "directAccessAnalysisURL": spnVTDirAccURL.value
+            }]
+        }
+
+        //console.log(content);
+        fs.writeFileSync("./config.json",JSON.stringify(content));
+        //console.log('gravou o json');
+
+        let remote = require('electron').remote;
+        let win = remote.getCurrentWindow();
+
+        if (close) win.close();
+
+    } catch (e) {
+        console.error('Catch : \n\n ' + e);
+    }
+}
+
+function loadSettingsFromJSON() {
+    try {
+        let spnADB = document.querySelector('#spnADB');
+        let spnApkAnalyzor = document.querySelector('#spnApkAnalizor');
+        let spnApkFolder = document.querySelector('#spnApkFolder');
+        let spnApkAnalysisFolder = document.querySelector('#spnApkAnalysisFolder');
+        let spnAnalysisJSON = document.querySelector('#spnAnalysisJSON');
+        let spnVTak = document.querySelector('#spnVTak');
+        let spnVTMainURL = document.querySelector('#spnVTMainURL');
+        let spnVTDirAccURL = document.querySelector('#spnVTDirAccURL');
+        
+        let ret = fs.readFileSync("./config.json", {encoding: 'utf-8'});
+        ret = JSON.parse(ret);
+        //console.log(ret);
+
+        if (ret !== undefined) {
+            spnADB.innerHTML = ret.android[0].adbPath;
+            spnApkAnalyzor.innerHTML = ret.android[0].apkAnalyzorPath;
+            spnApkFolder.innerHTML = ret.android[0].apkFolder;
+            spnApkAnalysisFolder.innerHTML = ret.android[0].apkAnalysisPath;
+            spnAnalysisJSON.innerHTML = ret.android[0].jsonAnalyzeFile;
+            spnVTak.value = ret.vt[0].ak;
+            spnVTMainURL.value = ret.vt[0].mainURL;
+            spnVTDirAccURL.value = ret.vt[0].directAccessAnalysisURL;
+            
+            myConfigJson = ret;
+
+            //console.log(myConfigJson);
+        }
+        else {
+            console.log("ops");
+        }
+
+    } catch(e){
+        console.error('Catch : \n\n ' + e);
+    } 
 }
