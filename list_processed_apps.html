@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="./style.css" >
+    <title>List of Processed Apps</title>
+  </head>
+  <script src="./helper.js"></script>
+  <body class="body" onload="loadProcessedApps()">
+    <div id="dvContainer" class="flex-container">
+      <div id="dvLeftPanel" class="flex-child">
+          <label>:: List of Apps Already Processed ::</label>
+          <br><br>
+          <table> 
+            <tr>
+              <td class="alTop">
+                <span>User Apps: </span><span id="spnUsrAppsProc"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="alTop">
+                <table class="fl-table" id="tbUsrAppsProc">
+                  <tbody>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+          </table> 
+      </div>
+      <div id="dvRigthPanel" class="flex-child">
+        <table class="fl-table">
+          <tr>
+            <td>Id: </td>
+            <td><span id="spnAppId"></span></td>
+          </tr>
+          <tr>
+            <td>Name: </td>
+            <td><span id="spnAppName"></span></td>
+          </tr>
+          <tr>
+            <td>Version: </td>
+            <td><span id="spnAppVer"></span></td>
+          </tr>
+          <tr>
+            <td>Remote Path: </td>
+            <td><span id="spnAppRemotePath"></span></td>
+          </tr>
+          <tr>
+            <td colspan="2"><button id="btnManifest" class="btnFlat2" onclick="openManifest()" >Open Manifest</button></td>
+          </tr>        
+          <tr>
+            <td colspan="2"><button id="btnLocal" class="btnFlat2" onclick="openLocal()" >Open Local</button></td>
+          </tr> 
+          <tr>
+            <td colspan="2"><button id="btnVTA" class="btnFlat2" onclick="openVTA()" >Open Analysis</button></td>
+          </tr>   
+        </table>
+      </div>
+    </div>
+  </body>
+</html> 

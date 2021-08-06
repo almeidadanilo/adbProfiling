@@ -2,7 +2,7 @@
 // include the Node.js 'path' module at the top of your file
 const path = require('path')
 const {app, BrowserWindow, Menu} = require('electron')
-const DEFINE_DEV = 1;
+const DEFINE_DEV = 0;
 let win;
 let modalPopup;
 
@@ -12,6 +12,8 @@ const mainAppMenu = [
       label: app.name,
       submenu: [
           { label: 'Settings', click: () => { modalPopup = createModal("settings.html", win, 450, 450); ; } },
+          { type:  'separator' },
+          { label: 'List Processed Apps', click: () => { modalPopup = createModal("list_processed_apps.html", win, 800, 600); ;} },
           { type:  'separator' },
           { label: 'Exit', role: 'quit' }
       ]
@@ -68,7 +70,8 @@ function createWindow () {
     win = new BrowserWindow({
       width: 900,
       height: 800,
-      resizable: false,  
+      resizable: false, 
+      icon: 'icon.png', 
       webPreferences: {
         nodeIntegration: true,
         contextIsolation: false,
@@ -76,16 +79,7 @@ function createWindow () {
         nativeWindowOpen: true
       }
     })
-/*
-    win.webContents.setWindowOpenHandler(({ url }) => {
-      if (url.startsWith('https://google.com/')) {
-        console.log('allow');
-        return { action: 'allow' }
-      }
-      console.log('deny');
-      return { action: 'deny' }
-    })
-*/
+
     if (DEFINE_DEV) win.webContents.openDevTools({mode: "detach"});
 
     win.loadFile('index.html')

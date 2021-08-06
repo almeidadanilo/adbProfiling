@@ -68,6 +68,21 @@ body {
     background-color: #777;
 }
 
+.btnFlat2 {
+    background-color: #555;
+    color: white;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    font-size: 12px;
+    width: 25%;
+}
+
+.btnFlat2:hover {
+    background-color: #777;
+}
+
 .alTop{
     vertical-align: top;
     width: 100px;
@@ -104,23 +119,36 @@ a {
     outline: none;
     text-decoration: none;
     padding: 2px 1px 0;
-  }
-  
-  a:link {
+}
+
+a:link {
     color: #265301;
-  }
-   
-  a:focus {
+}
+
+a:focus {
     border-bottom: 1px solid;
     background: #BAE498;
-  }
+}
   
-  a:hover {
+a:hover {
     border-bottom: 1px solid;
     background: #CDFEAA;
     cursor: pointer;
-  }
-  
-  input[type='file'] {
+}
+
+input[type='file'] {
     display: none
-  }
+}
+
+.flex-container {
+    display: flex;
+}
+
+.flex-child {
+    flex: 1;
+    border: 1px solid darkslateblue;
+}  
+
+.flex-child:first-child {
+    margin-right: 20px;
+} 

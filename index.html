@@ -8,9 +8,15 @@
   <body class="body" onload="loadPage()">
     <div id="topPanel" >
         <div class="inputDiv"> 
-            <input type="text" id="host" name="host" value="192.168.0.23"/>  
-            <button id="btnConnect" onclick="runProcess()">Executar</button>
-            <button id="btnClose" onclick="disconnectADB()">Desconectar</button>
+            <input type="text" id="host" name="host" value="192.168.0.46"/>  
+            <button id="btnConnect" class="btnFlat2" onclick="runProcess()">Executar</button>
+            <button id="btnClose" class="btnFlat2" onclick="disconnectADB()">Desconectar</button>
+            <button id="btnRunADBasRoot" class="btnFlat2" onclick="runADBasRoot()">Rodar ADB como 'Root'</button>
+            <label for="cboType" class="">Selecione o tipo de caixa: </label>
+            <select id="cboType" class="">
+              <option value="MXQ">MXQ</option>
+              <option value="TVA">TVA</option>
+            </select>
         </div>
     </div>
     <div>
