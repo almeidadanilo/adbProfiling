@@ -4,15 +4,46 @@
   "description": "teste",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
   },
   "author": "DA",
   "license": "ISC",
   "devDependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.59",
     "electron": "^13.1.4"
   },
   "dependencies": {
     "appium-adb": "^8.13.0",
+    "electron-squirrel-startup": "^1.0.0",
     "node-virustotal": "^3.32.0"
+  },
+  "config": {
+    "forge": {
+      "make_targets": {
+        "linux": [
+          "deb"
+        ],
+        "win32": [
+          "squirrel"
+        ]
+      },
+      "electronPackagerConfig": {
+        "asar": false,
+        "dir": "./src",
+        "platform": [
+          "linux",
+          "win32"
+        ],
+        "arch": [
+          "ia32",
+          "x64"
+        ],
+        "ignore": [
+          ".idea"
+        ]
+      }
+    }
   }
 }

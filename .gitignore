@@ -229,7 +229,7 @@ _pkginfo.txt
 
 # NODE modules
 node_modules/
-
+out/
 
 # Visual Studio cache files
 # files ending in .cache can be ignored

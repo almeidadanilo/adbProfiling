@@ -27,6 +27,7 @@
       <button class="tablink" onclick="openPage('dvFeatures', this, 'green')">Features</button>
       <button class="tablink" onclick="openPage('dvApps', this, 'blue')">Apps</button>
       <button class="tablink" onclick="openPage('dvExternal', this, 'orange')">External</button>
+      <button class="tablink" onclick="openPage('dvPrint', this, 'purple')">PrintScreen</button>
       <div id="dvInfo" class="tabcontent">
         <table class="fl-table">
           <tbody class="tbody">
@@ -82,6 +83,13 @@
           <tbody class="tbody">
           </tbody>
         </table>
+      </div>
+      <div id="dvPrint" class="tabcontent">
+        <span>Grab Device Print Screen: </span>
+        <br><br>
+        <span id="spnPrint">...</span>
+        <br>
+        <button id="btnPrint" class="btnFlat" onclick="grabDevicePrintScreen()">Print</button>
       </div>
     </div>
   </body>

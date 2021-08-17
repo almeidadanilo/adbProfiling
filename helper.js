@@ -13,11 +13,13 @@ const spnFeatures = document.querySelector('#spnFeatCount');
 const spnSysApps = document.querySelector('#spnSysApps');
 const spnUsrApps = document.querySelector('#spnUsrApps');
 const spnExternal = document.querySelector('#spnExternal');
+const spnPrint = document.querySelector('#spnPrint');
 
 const adbPath = "../../../Android/Sdk/platform-tools";
 const appCopyPath = "../../../Android/Sdk/platform-tools/apk";
 const apkAnlyzerPath = "../../../Android/Sdk/cmdline-tools/latest/bin";
 const jsonAnalyzeFile = "../../../Android/Sdk/platform-tools/apk/analyze.json";
+const screenCapCopyPath = "../../../Android/Sdk/platform-tools/apk/screens";
 const refDeviceModel = "model:";
 const refDeviceProduct = "device product:";
 const vtak = '6fce69de8cbff4e89ab4deda352d49ef40645b8b4114586108f6d289f5760cf9';
@@ -814,5 +816,35 @@ function fetchConfigFile() {
     } catch(e){
         console.error('Catch : \n\n ' + e);
         return null;
+    }  
+}
+
+function grabDevicePrintScreen () {
+    try {
+        let cmd, filename = "";
+        let execSync = require('child_process').execSync;
+        let ret;
+        
+        if (!fs.existsSync(screenCapCopyPath)) {
+            fs.mkdirSync(screenCapCopyPath);
+        }
+
+        filename = spnDevice.innerHTML + "_" + spnModel.innerHTML + "_" + Date.now() + ".png";
+
+        spnPrint.innerHTML = "Capturando: " + filename;
+        cmd = adbPath + "/adb shell screencap -p /data/app/" + filename;
+        ret = execSync(cmd, { encoding: 'utf-8'});
+
+        spnPrint.innerHTML = "Capturando: " + filename;
+        cmd = adbPath + "/adb pull /data/app/" + filename + " " + screenCapCopyPath + "/" + filename;
+        ret = execSync(cmd, { encoding: 'utf-8'});
+
+        spnPrint.innerHTML = "Limpando: " + filename;
+        cmd = adbPath + "/adb shell rm /data/app/" + filename;
+        ret = execSync(cmd, { encoding: 'utf-8'});        
+        
+    } catch(e){
+        console.error('Catch : \n\n ' + e);
+        spnPrint.innerHTML = "Erro";
     }  
 }
