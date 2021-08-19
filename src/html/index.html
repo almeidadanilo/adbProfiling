@@ -2,13 +2,13 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" type="text/css" href="./style.css" >
+    <link rel="stylesheet" type="text/css" href="../../style/style.css" >
     <title>ADB (+Others) Test Tool</title>
   </head>
   <body class="body" onload="loadPage()">
     <div id="topPanel" >
         <div class="inputDiv"> 
-            <input type="text" id="host" name="host" value="192.168.0.46"/>  
+            <input type="text" id="host" name="host" value="192.168.0.23"/>  
             <button id="btnConnect" class="btnFlat2" onclick="runProcess()">Executar</button>
             <button id="btnClose" class="btnFlat2" onclick="disconnectADB()">Desconectar</button>
             <button id="btnRunADBasRoot" class="btnFlat2" onclick="runADBasRoot()">Rodar ADB como 'Root'</button>
@@ -93,5 +93,5 @@
       </div>
     </div>
   </body>
-  <script src="./helper.js"></script>
+  <script src="../js/helper.js"></script>
 </html>

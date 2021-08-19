@@ -2,10 +2,10 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" type="text/css" href="./style.css" >
+    <link rel="stylesheet" type="text/css" href="../../style/style.css" >
     <title>ADB Tool - Settings</title>
   </head>
-  <script src="./helper.js"></script>
+  <script src="../js/helper.js"></script>
   <body class="body" onload="loadSettingsPage()">
     <div>
         <button class="tablink" onclick="openPage('dvAndroidSettings', this, 'red')" id="defaultTabOpen">Android Settings</button>
@@ -37,6 +37,12 @@
             </tr>
             <tr>
                 <td><span id="spnApkAnalysisFolder" class="file"></span></td><td><button id="btn4" onclick="openFileDlg('spnApkAnalysisFolder')">...</button></td>
+            </tr>
+            <tr>
+                <td><label>TVBox Print Screens</label></td><td></td>
+            </tr>
+            <tr>
+                <td><span id="spnTVBoxPrintScreens" class="file"></span></td><td><button id="btn5" onclick="openFileDlg('spnTVBoxPrintScreens')">...</button></td>
             </tr>
             <tr>
                 <td><label>Analysis JSON db</label></td><td></td>

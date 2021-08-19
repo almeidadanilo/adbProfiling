@@ -11,9 +11,9 @@ const mainAppMenu = [
   {
       label: app.name,
       submenu: [
-          { label: 'Settings', click: () => { modalPopup = createModal("settings.html", win, 450, 450); ; } },
+          { label: 'Settings', click: () => { modalPopup = createModal("src/html/settings.html", win, 450, 450); ; } },
           { type:  'separator' },
-          { label: 'List Processed Apps', click: () => { modalPopup = createModal("list_processed_apps.html", win, 800, 600); ;} },
+          { label: 'List Processed Apps', click: () => { modalPopup = createModal("src/html/list_processed_apps.html", win, 800, 600); ;} },
           { type:  'separator' },
           { label: 'Exit', role: 'quit' }
       ]
@@ -71,7 +71,7 @@ function createWindow () {
       width: 900,
       height: 800,
       resizable: false, 
-      icon: 'icon.png', 
+      icon: 'res/icon.png', 
       webPreferences: {
         nodeIntegration: true,
         contextIsolation: false,
@@ -82,7 +82,7 @@ function createWindow () {
 
     if (DEFINE_DEV) win.webContents.openDevTools({mode: "detach"});
 
-    win.loadFile('index.html')
+    win.loadFile('src/html/index.html')
 
     win.webContents.on('did-create-window', (childWindow) => {
       childWindow.webContents('will-navigate', (e) => {

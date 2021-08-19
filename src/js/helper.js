@@ -15,14 +15,14 @@ const spnUsrApps = document.querySelector('#spnUsrApps');
 const spnExternal = document.querySelector('#spnExternal');
 const spnPrint = document.querySelector('#spnPrint');
 
-const adbPath = "../../../Android/Sdk/platform-tools";
-const appCopyPath = "../../../Android/Sdk/platform-tools/apk";
-const apkAnlyzerPath = "../../../Android/Sdk/cmdline-tools/latest/bin";
-const jsonAnalyzeFile = "../../../Android/Sdk/platform-tools/apk/analyze.json";
-const screenCapCopyPath = "../../../Android/Sdk/platform-tools/apk/screens";
+//const adbPath = "../../../Android/Sdk/platform-tools";
+//const appCopyPath = "../../../Android/Sdk/platform-tools/apk";
+//const apkAnlyzerPath = "../../../Android/Sdk/cmdline-tools/latest/bin";
+//const jsonAnalyzeFile = "../../../Android/Sdk/platform-tools/apk/analyze.json";
+//const screenCapCopyPath = "../../../Android/Sdk/platform-tools/apk/screens";
 const refDeviceModel = "model:";
 const refDeviceProduct = "device product:";
-const vtak = '6fce69de8cbff4e89ab4deda352d49ef40645b8b4114586108f6d289f5760cf9';
+//const vtak = '6fce69de8cbff4e89ab4deda352d49ef40645b8b4114586108f6d289f5760cf9';
 
 let deviceModel, deviceProduct = "";
 let deviceFeatures, deviceSysApps, deviceUsrApps = [];
@@ -152,10 +152,12 @@ function featureMoreInfo (feat) {
 
 function appsExternalInfo (step, index) {
     try {
+                if (myConfigJson === undefined || myConfigJson === null) myConfigJson = fetchConfigFile();
+
                 consoleText('Calculando o hash do arquivo: ' + deviceUsrApps[index].name);
                 myUsrAppsIndex = index;
-                let manifest = appCopyPath + '/' + deviceUsrApps[index].name + '/' + deviceUsrApps[index].name + '_android_manifest.xml';
-                let appDir = appCopyPath + '/' + deviceUsrApps[index].name;
+                let manifest = myConfigJson.android[0].apkFolder + '/' + deviceUsrApps[index].name + '/' + deviceUsrApps[index].name + '_android_manifest.xml';
+                let appDir = myConfigJson.android[0].apkFolder + '/' + deviceUsrApps[index].name;
                 let versionName, versionCode = "";
                 let a, b = 0;
 
@@ -176,8 +178,9 @@ function appsExternalInfo (step, index) {
                     });
                 }
                 let shellExec = require('child_process').execSync;
-                //console.log(apkAnlyzerPath + '/apkanalyzer -h manifest print ' + appCopyPath + '/' + deviceUsrApps[index].name + '.apk');
-                let output = shellExec(apkAnlyzerPath + '/apkanalyzer -h manifest print ' + appCopyPath + '/' + deviceUsrApps[index].name + '.apk', { encoding: 'utf-8' });
+                //console.log(myConfigJson.android[0].apkAnalyzorPath + '/apkanalyzer -h manifest print ' + myConfigJson.android[0].appCopyPath + '/' + deviceUsrApps[index].name + '.apk');
+                console.log(myConfigJson);
+                let output = shellExec(myConfigJson.android[0].apkAnalyzorPath + '/apkanalyzer -h manifest print ' + myConfigJson.android[0].apkFolder + '/' + deviceUsrApps[index].name + '.apk', { encoding: 'utf-8' });
                 fs.writeFileSync(manifest, output, { encoding: 'utf-8'});
 
                 a = output.indexOf("android:versionCode=") + 20;
@@ -191,11 +194,11 @@ function appsExternalInfo (step, index) {
                 myFileJson = [];
 
                 consoleText('Registrando o arquivo: ');
-                //console.log(jsonAnalyzeFile);
-                
-                if (fs.existsSync(jsonAnalyzeFile)) {
+
+                //console.log(myConfigJson.android[0].jsonAnalyzeFile);
+                if (fs.existsSync(myConfigJson.android[0].jsonAnalyzeFile)) {
                     let data = [];
-                    data = fs.readFileSync(jsonAnalyzeFile);
+                    data = fs.readFileSync(myConfigJson.android[0].jsonAnalyzeFile);
                     //console.log(data);
                     myFileJson = JSON.parse(data);
                     //console.log(myFileJson);
@@ -218,7 +221,7 @@ function appsExternalInfo (step, index) {
                         }
                     });
 
-                    fs.writeFileSync(jsonAnalyzeFile, JSON.stringify(myFileJson), 'utf8');
+                    fs.writeFileSync(myConfigJson.android[0].jsonAnalyzeFile, JSON.stringify(myFileJson), 'utf8');
 
                     idx = findAppJson(deviceUsrApps[index].name, versionName);
                 }
@@ -228,7 +231,7 @@ function appsExternalInfo (step, index) {
                     
                     consoleText('Enviando o arquivo para VirusTotal: ');
 
-                    sendFile2VirusTotal2(index, idx, appCopyPath + '/' + deviceUsrApps[index].name + '.apk');
+                    sendFile2VirusTotal2(index, idx, myConfigJson.android[0].apkFolder + '/' + deviceUsrApps[index].name + '.apk');
                     
                     return;
                 } else {
@@ -236,7 +239,7 @@ function appsExternalInfo (step, index) {
                 }
 
                 if (myFileJson[idx].vt.url === '') {
-                    runVirusTotalAnalysis2(idx, appCopyPath + '/' + deviceUsrApps[index].name);
+                    runVirusTotalAnalysis2(idx, myConfigJson.android[0].apkFolder + '/' + deviceUsrApps[index].name);
                     return;
                 }
                 else {
@@ -268,12 +271,13 @@ function findAppJson(app,name) {
 
 function sendFile2VirusTotal2(i, idx, file) {
     try {
+        if (myConfigJson === undefined || myConfigJson === null) myConfigJson = fetchConfigFile();
         let d = [];
         const nvt = require('node-virustotal'); 
         const defaultTimedInstance = nvt.makeAPI();
         //console.log('serializing file');
         //console.log(file);
-        defaultTimedInstance.setKey(vtak);
+        defaultTimedInstance.setKey(myConfigJson.vt[0].ak);
         const aMaliciousFile = require('fs').readFileSync(file);
         console.log('making post: send file');
         console.log(aMaliciousFile.length);
@@ -292,7 +296,7 @@ function sendFile2VirusTotal2(i, idx, file) {
         
             consoleText('Arquivo enviado, prosseguindo com a analise: ');
             
-            runVirusTotalAnalysis2(idx, appCopyPath + '/' + deviceUsrApps[i].name);
+            runVirusTotalAnalysis2(idx, myConfigJson.android[0].appCopyPath + '/' + deviceUsrApps[i].name);
 
             return;
         });
@@ -305,11 +309,12 @@ function sendFile2VirusTotal2(i, idx, file) {
 
 function runVirusTotalAnalysis2(idx, path) {
     try {
+        if (myConfigJson === undefined || myConfigJson === null) myConfigJson = fetchConfigFile();
         let d = [];
         let url = "";
         const nvt = require('node-virustotal');
         const defaultTimedInstance = nvt.makeAPI();
-        defaultTimedInstance.setKey(vtak);
+        defaultTimedInstance.setKey(myConfigJson.vt[0].ak);
         console.log('making post: VirusTotal Analize');
         //console.log(myFileJson[idx]);
         //console.log(myFileJson[idx].vt.fileid);
@@ -339,7 +344,7 @@ function runVirusTotalAnalysis2(idx, path) {
 
             //console.log(myFileJson);
 
-            fs.writeFileSync(jsonAnalyzeFile, JSON.stringify(myFileJson), 'utf8');
+            fs.writeFileSync(myConfigJson.android[0].jsonAnalyzeFile, JSON.stringify(myFileJson), 'utf8');
 
             consoleText('Analise finalizada, abrindo site');
 
@@ -366,7 +371,8 @@ function runADBasRoot(){
     try {
         consoleText('Mudando ADB para Root');
         let shellExec = require('child_process').execSync;
-        let output = shellExec(adbPath + '/adb root', { encoding: 'utf-8' });  
+        if (myConfigJson === undefined || myConfigJson === null) myConfigJson = fetchConfigFile();
+        let output = shellExec(myConfigJson.android[0].adbPath + '/adb root', { encoding: 'utf-8' });  
         if (output.indexOf('failed') > 0) {
             consoleText(output);
             return 0;
@@ -384,7 +390,8 @@ function runADBasRoot(){
 function connect(shellExec, ip) {
     try {    
         consoleText('Conectando com host (' + ip + ')');
-        let output = shellExec(adbPath + '/adb connect ' + ip, { encoding: 'utf-8' });  
+        if (myConfigJson === undefined || myConfigJson === null) myConfigJson = fetchConfigFile();
+        let output = shellExec(myConfigJson.android[0].adbPath + '/adb connect ' + ip, { encoding: 'utf-8' });  
         if (output.indexOf('failed') > 0) {
             consoleText(output);
             return 0;
@@ -401,8 +408,9 @@ function connect(shellExec, ip) {
 
 function getDeviceList(shellExec) {
     try {
-        consoleText('Lendo informacoes do device ...'); 
-        let output = shellExec(adbPath + '/adb devices -l ', { encoding: 'utf-8' });
+        consoleText('Lendo informacoes do device ...');
+        if (myConfigJson === undefined || myConfigJson === null) myConfigJson = fetchConfigFile();
+        let output = shellExec(myConfigJson.android[0].adbPath + '/adb devices -l ', { encoding: 'utf-8' });
         consoleText(output);
         //console.log('ret: ' + output);
 
@@ -426,7 +434,8 @@ function getDeviceList(shellExec) {
 function disconnectP (shellExec){
     try {
         consoleText('Desconectando ...');
-        let output = shellExec(adbPath + '/adb disconnect', { encoding: 'utf-8' });
+        if (myConfigJson === undefined || myConfigJson === null) myConfigJson = fetchConfigFile();
+        let output = shellExec(myConfigJson.android[0].adbPath + '/adb disconnect', { encoding: 'utf-8' });
         consoleText(output);
         //console.log('ret: ' + output);
 
@@ -441,7 +450,8 @@ function disconnectP (shellExec){
 function getDeviceFeatures (shellExec){
     try {
         consoleText('Listando as features do device ...');
-        let output = shellExec(adbPath + '/adb shell pm list features', { encoding: 'utf-8' });
+        if (myConfigJson === undefined || myConfigJson === null) myConfigJson = fetchConfigFile();
+        let output = shellExec(myConfigJson.android[0].adbPath + '/adb shell pm list features', { encoding: 'utf-8' });
         consoleText(output);
         deviceFeatures = output.split("\n");
         return 1;
@@ -455,7 +465,8 @@ function getDeviceFeatures (shellExec){
 function getDeviceApps (shellExec){
     try {
         consoleText('Listando as Apps de Sistema do device ...');
-        let output = shellExec(adbPath + '/adb shell pm list packages -f -s', { encoding: 'utf-8' });
+        if (myConfigJson === undefined || myConfigJson === null) myConfigJson = fetchConfigFile();
+        let output = shellExec(myConfigJson.android[0].adbPath + '/adb shell pm list packages -f -s', { encoding: 'utf-8' });
         consoleText(output);
         //console.log('ret: ' + output);
         let ret = output.split("\n");
@@ -473,7 +484,7 @@ function getDeviceApps (shellExec){
         }
 
         consoleText('Listando as Apps de Usuario do device ...');
-        output = shellExec(adbPath + '/adb shell pm list packages -f -3', { encoding: 'utf-8' });
+        output = shellExec(myConfigJson.android[0].adbPath + '/adb shell pm list packages -f -3', { encoding: 'utf-8' });
         consoleText(output);
         //console.log('ret: ' + output);
         ret = output.split("\n");
@@ -584,7 +595,7 @@ function openFileDlg(targetElement) {
 function pullUserApps() {
     try {
         let execSync = require('child_process').execSync;
-
+        if (myConfigJson === undefined || myConfigJson === null) myConfigJson = fetchConfigFile();
         consoleText('Copiando as Apps de Usuario ...');
         let i, cmd, output;
         let fileName = '';
@@ -595,15 +606,18 @@ function pullUserApps() {
 
             deviceUsrApps[i].name = deviceUsrApps[i].name.replace(new RegExp("/", "g"), "");
 
+            //console.log(myConfigJson.android[0].apkFolder);
+            //console.log(myConfigJson);
+
             if (executionType == 'MXQ') {
-                fileName = appCopyPath + '/' + deviceUsrApps[i].name + '.apk';
-                cmd = '/adb pull ' + deviceUsrApps[i].path + ' ' + appCopyPath + '/' + deviceUsrApps[i].name + '.apk';
+                fileName = myConfigJson.android[0].apkFolder + '/' + deviceUsrApps[i].name + '.apk';
+                cmd = '/adb pull ' + deviceUsrApps[i].path + ' ' + myConfigJson.android[0].apkFolder + '/' + deviceUsrApps[i].name + '.apk';
             }
             else if (executionType == 'TVA') {
-                fileName = appCopyPath + '/' + deviceUsrApps[i].name + '.apk';
+                fileName = myConfigJson.android[0].apkFolder + '/' + deviceUsrApps[i].name + '.apk';
                 //console.log(deviceUsrApps[i].path);
                 //console.log(deviceUsrApps[i].name);
-                cmd = '/adb pull ' + deviceUsrApps[i].path + '/base.apk ' + appCopyPath + '/' + deviceUsrApps[i].name + '.apk';
+                cmd = '/adb pull ' + deviceUsrApps[i].path + '/base.apk ' + myConfigJson.android[0].apkFolder + '/' + deviceUsrApps[i].name + '.apk';
             }
 
             if (fs.existsSync(fileName)) {
@@ -612,7 +626,7 @@ function pullUserApps() {
             else {
                 consoleText('Copiando ' + deviceUsrApps[i].name + ' ...');
                 //console.log('cmd: ' + cmd);
-                output = execSync(adbPath + cmd , { encoding: 'utf-8' });
+                output = execSync(myConfigJson.android[0].adbPath + cmd , { encoding: 'utf-8' });
                 //consoleText(output);
                 //console.log('ret: ' + output);
             }
@@ -648,6 +662,7 @@ function closeSettings () {
         let spnVTak = document.querySelector('#spnVTak');
         let spnVTMainURL = document.querySelector('#spnVTMainURL');
         let spnVTDirAccURL = document.querySelector('#spnVTDirAccURL');
+        let spnTVBoxPrintScreens = document.querySelector('#spnTVBoxPrintScreens');
         let content;
 
         content = {
@@ -656,6 +671,7 @@ function closeSettings () {
                 "apkAnalyzorPath": spnApkAnalyzor.innerHTML,
                 "apkFolder": spnApkFolder.innerHTML,
                 "apkAnalysisPath": spnApkAnalysisFolder.innerHTML,
+                "tvboxprintscreens": spnTVBoxPrintScreens.innerHTML,
                 "jsonAnalyzeFile": spnAnalysisJSON.innerHTML
             }],
             "vt":[{
@@ -689,6 +705,7 @@ function loadSettingsFromJSON() {
         let spnVTak = document.querySelector('#spnVTak');
         let spnVTMainURL = document.querySelector('#spnVTMainURL');
         let spnVTDirAccURL = document.querySelector('#spnVTDirAccURL');
+        let spnTVBoxPrintScreens = document.querySelector('#spnTVBoxPrintScreens');
         
         let ret = fs.readFileSync("./config.json", {encoding: 'utf-8'});
         ret = JSON.parse(ret);
@@ -702,6 +719,7 @@ function loadSettingsFromJSON() {
             if (spnApkFolder != null) spnApkFolder.innerHTML = ret.android[0].apkFolder;
             if (spnApkAnalysisFolder != null) spnApkAnalysisFolder.innerHTML = ret.android[0].apkAnalysisPath;
             if (spnAnalysisJSON != null) spnAnalysisJSON.innerHTML = ret.android[0].jsonAnalyzeFile;
+            if (spnTVBoxPrintScreens != null) spnTVBoxPrintScreens.innerHTML = ret.android[0].tvboxprintscreens;
             if (spnVTak != null) spnVTak.value = ret.vt[0].ak;
             if (spnVTMainURL != null) spnVTMainURL.value = ret.vt[0].mainURL;
             if (spnVTDirAccURL != null) spnVTDirAccURL.value = ret.vt[0].directAccessAnalysisURL;
@@ -730,13 +748,15 @@ function loadProcessedApps () {
 
 function loadProcessedAppsFromJSON() {
     try {
-        console.log("in: 1");
-        console.log(myFileJson);
+        //console.log("in: 1");
+        //console.log(myFileJson);
+
+        if (myConfigJson === undefined || myConfigJson === null) myConfigJson = fetchConfigFile();
 
         if (myFileJson === undefined || myFileJson == null) {
-            if (fs.existsSync(jsonAnalyzeFile)) {
+            if (fs.existsSync(myConfigJson.android[0].jsonAnalyzeFile)) {
                 let data = [];
-                data = fs.readFileSync(jsonAnalyzeFile);
+                data = fs.readFileSync(myConfigJson.android[0].jsonAnalyzeFile);
                 myFileJson = JSON.parse(data);
             }            
         };
@@ -774,7 +794,7 @@ function openManifest () {
         let index = document.querySelector('#spnAppId').innerHTML;
         let file = "";
         let cfg = fetchConfigFile();
-        //file = appCopyPath + '/' + myFileJson[index].name + '/' + myFileJson[index].name + '_android_manifest.xml';
+        
         file = cfg.android[0].apkFolder + '/' + myFileJson[index].name + '/' + myFileJson[index].name + '_android_manifest.xml';
         console.log({xfile: file});
         shell.openPath(file);
@@ -824,23 +844,25 @@ function grabDevicePrintScreen () {
         let cmd, filename = "";
         let execSync = require('child_process').execSync;
         let ret;
+
+        if (myConfigJson === undefined || myConfigJson === null) myConfigJson = fetchConfigFile();
         
-        if (!fs.existsSync(screenCapCopyPath)) {
-            fs.mkdirSync(screenCapCopyPath);
+        if (!fs.existsSync(myConfigJson.android[0].tvboxprintscreens)) {
+            fs.mkdirSync(myConfigJson.android[0].tvboxprintscreens);
         }
 
         filename = spnDevice.innerHTML + "_" + spnModel.innerHTML + "_" + Date.now() + ".png";
 
         spnPrint.innerHTML = "Capturando: " + filename;
-        cmd = adbPath + "/adb shell screencap -p /data/app/" + filename;
+        cmd = myConfigJson.android[0].adbPath + "/adb shell screencap -p /data/app/" + filename;
         ret = execSync(cmd, { encoding: 'utf-8'});
 
         spnPrint.innerHTML = "Capturando: " + filename;
-        cmd = adbPath + "/adb pull /data/app/" + filename + " " + screenCapCopyPath + "/" + filename;
+        cmd = myConfigJson.android[0].adbPath + "/adb pull /data/app/" + filename + " " + myConfigJson.android[0].tvboxprintscreens + "/" + filename;
         ret = execSync(cmd, { encoding: 'utf-8'});
 
         spnPrint.innerHTML = "Limpando: " + filename;
-        cmd = adbPath + "/adb shell rm /data/app/" + filename;
+        cmd = myConfigJson.android[0].adbPath + "/adb shell rm /data/app/" + filename;
         ret = execSync(cmd, { encoding: 'utf-8'});        
         
     } catch(e){
