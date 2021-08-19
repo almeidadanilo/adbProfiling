@@ -12,12 +12,13 @@
   "license": "ISC",
   "devDependencies": {
     "@electron-forge/cli": "^6.0.0-beta.59",
-    "electron": "^13.1.4"
+    "electron": "^13.2.1"
   },
   "dependencies": {
-    "appium-adb": "^8.13.0",
+    "appium-adb": "^8.13.2",
     "electron-squirrel-startup": "^1.0.0",
-    "node-virustotal": "^3.32.0"
+    "node-virustotal": "^3.32.0",
+    "npm-check-updates": "^11.8.3"
   },
   "config": {
     "forge": {
